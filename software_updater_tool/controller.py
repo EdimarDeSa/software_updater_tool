@@ -13,15 +13,9 @@ from .WorkersBrewery import WorkersBrewery
 
 
 class DownloadError(Exception):
-    def __init__(self, message: str) -> str:
-        return message
+    ...
 
 
-# class Atualizacao(tk.Tk):
-#     def __init__(self, nome: str):
-#         self.nome_do_software = nome
-#         self.pasta_software = self.busca_arquivo_local()
-#
 #     def gera_bkp(self):
 #         self.bak_path = temp.mktemp(prefix=f'{self.nome_do_software}_bak_')
 #         self.atualiza_informacao('Criando backup.')
@@ -33,109 +27,14 @@ class DownloadError(Exception):
 #         self.bak_path += '.zip'
 #         self.atualiza_informacao('Backup criado com sucesso.')
 #
-#         self.baixar_nova_versao()
-#
-#     def atualiza_informacao(self, informacao: str):
-#         self.informacao.configure(text=informacao)
-#         self.update_idletasks()
-#
-#     def baixar_nova_versao(self):
-#         tamanho_total = int(response.headers.get('content-length', 0))
-#         tamanho_atual = 0
-#         inicio = time.time()
-#
-#         with temp.NamedTemporaryFile(
-#             prefix=f'{self.nome_do_software}_new_', suffix=ZIP, delete=False
-#         ) as tmp_new_version:
-#             self.andamento_de_progresso.configure(text=tmp_new_version.name)
-#             for dados in response.iter_content(chunk_size=10000):
-#                 tmp_new_version.write(dados)
-#
-#                 tamanho_atual += len(dados)
-#                 self.calcula_velocidade(tamanho_atual, inicio)
-#
-#                 percentual_concluido = (
-#                     self.calcula_progresso(tamanho_atual, tamanho_total) * 100
-#                 )
-#                 self.andamento_de_progresso.configure(
-#                     text=f'{tmp_new_version.name} - {percentual_concluido:.2f}%'
-#                 )
-#                 self.atualiza_barra_de_progresso(tamanho_atual, tamanho_total)
-#
-#             self.atualiza_informacao('Testando download.')
-#             self.tmp_new_version_path = Path(
-#                 str(tmp_new_version.name)
-#             ).resolve()
-#         if zipfile.is_zipfile(self.tmp_new_version_path):
-#             self.atualiza_informacao('Download OK...')
-#             self.after(
-#                 1000, lambda: self.atualiza_informacao('Iniciando atualização')
-#             )
-#             self.after(2000, self.atualiza)
-#         else:
-#             self.after(
-#                 1000, lambda: self.atualiza_informacao('Falha no download')
-#             )
-#
-#     def atualiza(self):
-#         with zipfile.ZipFile(self.tmp_new_version_path, 'r') as zip_ref:
-#             total_arquivos = len(zip_ref.namelist())
-#             self.andamento_de_progresso.configure(
-#                 text=f'Extraindo arquivos... 0/{total_arquivos}'
-#             )
-#
-#             for index, arquivo in enumerate(zip_ref.namelist(), start=1):
-#                 self.andamento_de_progresso.configure(
-#                     text=f'Extraindo arquivos... {index}/{total_arquivos}'
-#                 )
-#                 zip_ref.extract(arquivo, self.pasta_software)
-#                 self.atualiza_barra_de_progresso(index, total_arquivos)
-#         self.andamento_de_progresso.configure(text='')
-#         self.atualiza_informacao(f'Iniciano: {self.nome_do_software}.exe')
-#         self.after(500, self.inicia_programa)
-#
-#     def busca_arquivo_local(self):
-#         local = Path(__file__).resolve().parent
-#         if (
-#             str(local)
-#             == r'C:/Users/Edimar/Documents/GitHub/gerador_de_questoes_didaxis'
-#         ):
-#             return local / r'compilado/dist'
-#         return local.parent / self.nome_do_software
-#
-#     def atualiza_barra_de_progresso(self, valor_atual, valor_total):
-#         self.barra_de_progresso.set(
-#             self.calcula_progresso(valor_atual, valor_total)
-#         )
-#         self.update_idletasks()
-#
-#     @staticmethod
-#     def calcula_progresso(valor_atual, valor_total) -> float:
-#         try:
-#             progresso = valor_atual / valor_total
-#             return progresso
-#         except ZeroDivisionError:
-#             return 0
-#
-#     def inicia_programa(self):
-#         comando = [
-#             'start',
-#             self.pasta_software
-#             / self.nome_do_software
-#             / f'{self.nome_do_software}.exe',
-#         ]
-#         try:
-#             subprocess.Popen(comando, shell=True)
-#         except Exception as e:
-#             print(e)
-#
-#         self.andamento_de_progresso.configure(text='Tudo certo')
 
 
 class Controller:
     def __init__(self, view: AbstractView, model: AbstractModel, software_name: str):
         self._view = view
         self._model = model
+
+        self.local = Path(__file__).resolve().parent.parent
 
         self._brewery = WorkersBrewery(2, wait_time=1, daemon_workers=True)
 
@@ -154,7 +53,6 @@ class Controller:
         self._brewery.hire_a_worker('update_process', self._update_process, {})
 
     def _update_process(self) -> None:
-        print('update_process started')
         try:
             self._view.set_title('Iniciando atualização')
 
@@ -214,7 +112,7 @@ class Controller:
             self._view.set_title('Inicializando...')
 
             subprocess.Popen(
-                'C:/Users/Edimar/Documents/GitHub/software_updater_tool/gerador_de_questoes_didaxis/gerador_de_questoes_didaxis.exe',
+                self.local / self.software_name / f'{self.software_name}.exe',
                 shell=True,
                 stdout=False,
                 stderr=False,
