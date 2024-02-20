@@ -24,7 +24,9 @@ if __name__ == '__main__':
         '-n',
         type=str,
         required=True,
-        help='Name of the software to update',
+        help='Specify the name of the software for the update'
     )
 
-    main(parser.parse_args().name)
+    name = parser.parse_args().name
+
+    main(name)
